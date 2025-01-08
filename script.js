@@ -1,32 +1,22 @@
 let timeLeft;
 let timerId = null;
 let isWorkTime = true;
+let sessionCount = 1;
 
+// DOM Elements
 const minutesDisplay = document.getElementById('minutes');
 const secondsDisplay = document.getElementById('seconds');
 const startButton = document.getElementById('start');
 const resetButton = document.getElementById('reset');
 const modeText = document.getElementById('mode-text');
 const toggleModeButton = document.getElementById('toggle-mode');
+const sessionCountDisplay = document.getElementById('session-count');
 
-const WORK_TIME = 25 * 60; // 25 minutes in seconds
-const BREAK_TIME = 5 * 60; // 5 minutes in seconds
-
-const WORK_QUOTES = [
-    "The only way to do great work is to love what you do. - Steve Jobs",
-    "Success is not final, failure is not fatal. - Winston Churchill",
-    "Focus on being productive instead of busy. - Tim Ferriss",
-    "Don't count the days, make the days count. - Muhammad Ali",
-    "Quality is not an act, it is a habit. - Aristotle"
-];
-
-const REST_QUOTES = [
-    "Take a break, you've earned it! 🌟",
-    "Rest is not idleness, it is the key to better work. - John Lubbock",
-    "Your mind will answer most questions if you learn to relax. - Albert Einstein",
-    "Sometimes the most productive thing you can do is relax. - Mark Black",
-    "Recovery is not a sign of weakness, it's an art of preparation. 🎯"
-];
+// Constants
+const WORK_TIME = 25 * 60;    // 25 minutes in seconds
+const SHORT_BREAK = 5 * 60;   // 5 minutes in seconds
+const LONG_BREAK = 15 * 60;   // 15 minutes in seconds
+const SESSIONS_BEFORE_LONG_BREAK = 3;
 
 function updateDisplay(timeLeft) {
     const minutes = Math.floor(timeLeft / 60);
@@ -35,87 +25,88 @@ function updateDisplay(timeLeft) {
     secondsDisplay.textContent = seconds.toString().padStart(2, '0');
 }
 
-function updateTitle(timeLeft) {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    document.title = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} - Pomodoro Timer`;
-}
-
 function startTimer() {
-    if (timerId !== null) return;
+    if (timerId !== null) {
+        clearInterval(timerId);
+        startButton.textContent = 'Start';
+        timerId = null;
+        return;
+    }
 
-    timeLeft = isWorkTime ? WORK_TIME : BREAK_TIME;
-    updateDisplay(timeLeft);
+    if (!timeLeft) {
+        timeLeft = isWorkTime ? WORK_TIME : getBreakTime();
+    }
 
+    startButton.textContent = 'Pause';
     timerId = setInterval(() => {
         timeLeft--;
         updateDisplay(timeLeft);
-        updateTitle(timeLeft);
 
         if (timeLeft === 0) {
             clearInterval(timerId);
             timerId = null;
-            isWorkTime = !isWorkTime;
-            modeText.textContent = isWorkTime ? 'Time to focus!' : 'Time for a break!';
-            
-            // Update quote when timer completes
-            const quotes = isWorkTime ? WORK_QUOTES : REST_QUOTES;
-            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-            document.getElementById('quote-text').textContent = randomQuote;
-            
-            // Play notification sound
-            const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
-            audio.play();
+            startButton.textContent = 'Start';
+            handleTimerComplete();
         }
     }, 1000);
+}
 
-    startButton.textContent = 'Pause';
+function getBreakTime() {
+    return sessionCount % SESSIONS_BEFORE_LONG_BREAK === 0 ? LONG_BREAK : SHORT_BREAK;
+}
+
+function handleTimerComplete() {
+    playNotification();
+    if (isWorkTime) {
+        sessionCount++;
+        sessionCountDisplay.textContent = sessionCount;
+    }
+    toggleMode();
 }
 
 function resetTimer() {
     clearInterval(timerId);
     timerId = null;
     isWorkTime = true;
+    sessionCount = 1;
+    sessionCountDisplay.textContent = sessionCount;
     timeLeft = WORK_TIME;
     updateDisplay(timeLeft);
-    modeText.textContent = 'Time to focus!';
     startButton.textContent = 'Start';
-    document.getElementById('quote-text').textContent = WORK_QUOTES[0];
+    toggleModeButton.textContent = 'Work Mode';
+    modeText.textContent = 'Time to focus!';
 }
 
 function toggleMode() {
     isWorkTime = !isWorkTime;
-    timeLeft = isWorkTime ? WORK_TIME : BREAK_TIME;
+    timeLeft = isWorkTime ? WORK_TIME : getBreakTime();
     updateDisplay(timeLeft);
-    toggleModeButton.textContent = isWorkTime ? 'Rest Mode' : 'Work Mode';
-    modeText.textContent = isWorkTime ? 'Time to focus!' : 'Time for a break!';
     
-    // Get random quote based on mode
-    const quotes = isWorkTime ? WORK_QUOTES : REST_QUOTES;
-    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-    document.getElementById('quote-text').textContent = randomQuote;
+    // Update UI elements
+    toggleModeButton.textContent = isWorkTime ? 'Work Mode' : 'Break Mode';
+    modeText.textContent = isWorkTime ? 'Time to focus!' : 
+        (getBreakTime() === LONG_BREAK ? 'Time for a long break!' : 'Time for a short break!');
+    
+    // Reset timer state
+    clearInterval(timerId);
+    timerId = null;
+    startButton.textContent = 'Start';
 }
 
-startButton.addEventListener('click', () => {
-    if (timerId === null) {
-        startTimer();
-    } else {
-        clearInterval(timerId);
-        timerId = null;
-        startButton.textContent = 'Start';
+function playNotification() {
+    try {
+        const audio = new Audio('data:audio/wav;base64,//uQRAAAAWMSLwUIYAAsYkXgoQwAEaYLWfkWgAI0wWs/ItAAAGDgYtAgAyN+QWaAAihwMWm4G8QQRDiMcCBcH3Cc+CDv/7xA4Tvh9Rz/y8QADBwMWgQAZG/ILNAARQ4GLTcDeIIIhxGOBAuD7hOfBB3/94gcJ3w+o5/5eIAIAAAVwWgQAVQ2ORaIQwEMAJiDg95G4nQL7mQVWI6GwRcfsZAcsKkJvxgxEjzFUgfHoSQ9Qq7KNwqHwuB13MA4a1q/DmBrHgPcmjiGoh//EwC5nGPEmS4RcfkVKOhJf+WOgoxJclFz3kgn//dBA+ya1GhurNn8zb//9NNutNuhz31f////9vt///z+IdAEAAAK4LQIAKobHItEIYCGAExBwe8jcToF9zIKrEdDYIuP2MgOWFSE34wYiR5iqQPj0JIeoVdlG4VD4XA67mAcNa1fhzA1jwHuTRxDUQ//iYBczjHiTJcIuPyKlHQkv/LHQUYkuSi57yQT//uggfZNajQ3Vmz+Zt//+mm3Wm3Q576v////+32///5/EOgAAADVghQAAAAA==');
+        audio.play();
+    } catch (e) {
+        console.log('Notification sound failed to play');
     }
-});
+}
 
+// Event listeners
+startButton.addEventListener('click', startTimer);
 resetButton.addEventListener('click', resetTimer);
+toggleModeButton.addEventListener('click', toggleMode);
 
-toggleModeButton.addEventListener('click', () => {
-    if (timerId !== null) {
-        clearInterval(timerId);
-        timerId = null;
-        startButton.textContent = 'Start';
-    }
-    toggleMode();
-});
-
-// Initialize display
-resetTimer(); 
+// Initialize timer
+timeLeft = WORK_TIME;
+updateDisplay(timeLeft); 

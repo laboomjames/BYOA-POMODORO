@@ -1,46 +1,76 @@
 body {
-    font-family: Arial, Helvetica, sans-serif, 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif, sans-serif;
+    font-family: "Noto Sans JP", sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #E8F3FF 0%, #FFE8E8 100%);
+    position: relative;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    background: #ffffff;
-    position: relative;
-    overflow: hidden;
 }
 
-/* Add subtle animated background shapes */
-body::before {
+/* Floating clouds background */
+body::before, body::after {
     content: '';
     position: absolute;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.15), transparent 70%);
-    top: -250px;
-    right: -250px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent 70%);
     border-radius: 50%;
     animation: float 20s infinite linear;
 }
 
+body::before {
+    top: -150px;
+    right: -150px;
+}
+
+body::after {
+    bottom: -150px;
+    left: -150px;
+    animation-delay: -10s;
+}
+
 .container {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.85);
     padding: 3rem;
     border-radius: 24px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #FF9F1C, #E71D36, #2EC4B6);
+}
+
+h1 {
+    font-size: 2rem;
     color: #1a1a1a;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-weight: 700;
 }
 
 .timer {
     font-size: 6rem;
-    font-weight: 600;
+    font-weight: 700;
     margin: 2rem 0;
-    background: linear-gradient(135deg, #A5B4FC, #818CF8);
+    background: linear-gradient(135deg, #E71D36, #FF9F1C);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 2px 20px rgba(165, 180, 252, 0.4);
+    text-shadow: 0 2px 20px rgba(231, 29, 54, 0.4);
     letter-spacing: -2px;
+    text-align: center;
 }
 
 .controls {
@@ -50,13 +80,14 @@ body::before {
     align-items: center;
 }
 
-.controls .primary-buttons {
+.primary-buttons {
     display: flex;
-    gap: 0.75rem;
+    gap: 1rem;
     margin-bottom: 1rem;
 }
 
-.controls button {
+button {
+    font-family: "Noto Sans JP", sans-serif;
     font-size: 1rem;
     padding: 1rem 2.5rem;
     cursor: pointer;
@@ -66,74 +97,59 @@ body::before {
     transition: all 0.3s ease;
 }
 
-.controls button#start {
-    background: #4F46E5;
+#start {
+    background: #2EC4B6;
     color: white;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    box-shadow: 0 4px 12px rgba(46, 196, 182, 0.3);
 }
 
-.controls button#start:hover {
-    background: #4338CA;
+#start:hover {
+    background: #279e93;
     transform: translateY(-2px);
 }
 
-.controls button.reset {
-    background: #EF4444;
+#reset {
+    background: #E71D36;
     color: white;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 4px 12px rgba(231, 29, 54, 0.3);
 }
 
-.controls button.reset:hover {
-    background: #DC2626;
+#reset:hover {
+    background: #c41829;
     transform: translateY(-2px);
 }
 
-.controls button#toggle-mode {
-    background: #10B981;
+#toggle-mode {
+    background: #FF9F1C;
     color: white;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 159, 28, 0.3);
     width: 100%;
     max-width: 200px;
 }
 
-.controls button#toggle-mode:hover {
-    background: #059669;
+#toggle-mode:hover {
+    background: #e68a0c;
     transform: translateY(-2px);
-}
-
-.mode {
-    margin-top: 2rem;
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.6);
-    font-weight: 400;
-}
-
-@keyframes float {
-    0% { transform: rotate(0deg) translate(0, 0); }
-    100% { transform: rotate(360deg) translate(0, 0); }
-}
-
-/* Add smooth transitions for all state changes */
-* {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(0.98); }
-    100% { transform: scale(1); }
-}
-
-.quote {
-    font-size: 0.9rem;
-    color: #6B7280;
-    font-style: italic;
-    margin-top: 0.5rem;
-    max-width: 300px;
-    line-height: 1.4;
 }
 
 .mode {
     margin-top: 2rem;
     text-align: center;
+    font-size: 1.1rem;
+    color: #4A4A4A;
+    font-weight: 500;
+}
+
+.session-counter {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #4A4A4A;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+@keyframes float {
+    0% { transform: rotate(0deg) translate(0, 0); }
+    50% { transform: rotate(180deg) translate(50px, 50px); }
+    100% { transform: rotate(360deg) translate(0, 0); }
 } 
