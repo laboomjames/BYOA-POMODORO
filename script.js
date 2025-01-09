@@ -2,6 +2,7 @@ let timeLeft;
 let timerId = null;
 let isWorkTime = true;
 let sessionCount = 1;
+let originalTitle = document.title;
 
 // DOM Elements
 const minutesDisplay = document.getElementById('minutes');
@@ -11,6 +12,7 @@ const resetButton = document.getElementById('reset');
 const modeText = document.getElementById('mode-text');
 const toggleModeButton = document.getElementById('toggle-mode');
 const sessionCountDisplay = document.getElementById('session-count');
+const dateDisplay = document.querySelector('.date-display');
 
 // Constants
 const WORK_TIME = 25 * 60;    // 25 minutes in seconds
@@ -18,17 +20,31 @@ const SHORT_BREAK = 5 * 60;   // 5 minutes in seconds
 const LONG_BREAK = 15 * 60;   // 15 minutes in seconds
 const SESSIONS_BEFORE_LONG_BREAK = 3;
 
+function updateDate() {
+    const now = new Date();
+    const options = { 
+        year: 'numeric',
+        month: 'long',
+        day: '2-digit'
+    };
+    dateDisplay.textContent = now.toLocaleDateString('en-US', options).toUpperCase();
+}
+
 function updateDisplay(timeLeft) {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
+    const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
     minutesDisplay.textContent = minutes.toString().padStart(2, '0');
     secondsDisplay.textContent = seconds.toString().padStart(2, '0');
+    
+    document.title = `${formattedTime} - ${isWorkTime ? 'WORK' : 'BREAK'}`;
 }
 
 function startTimer() {
     if (timerId !== null) {
         clearInterval(timerId);
-        startButton.textContent = 'Start';
+        startButton.textContent = 'START';
         timerId = null;
         return;
     }
@@ -37,7 +53,7 @@ function startTimer() {
         timeLeft = isWorkTime ? WORK_TIME : getBreakTime();
     }
 
-    startButton.textContent = 'Pause';
+    startButton.textContent = 'PAUSE';
     timerId = setInterval(() => {
         timeLeft--;
         updateDisplay(timeLeft);
@@ -45,7 +61,7 @@ function startTimer() {
         if (timeLeft === 0) {
             clearInterval(timerId);
             timerId = null;
-            startButton.textContent = 'Start';
+            startButton.textContent = 'START';
             handleTimerComplete();
         }
     }, 1000);
@@ -72,9 +88,10 @@ function resetTimer() {
     sessionCountDisplay.textContent = sessionCount;
     timeLeft = WORK_TIME;
     updateDisplay(timeLeft);
-    startButton.textContent = 'Start';
-    toggleModeButton.textContent = 'Work Mode';
-    modeText.textContent = 'Time to focus!';
+    startButton.textContent = 'START';
+    toggleModeButton.textContent = 'MODE';
+    modeText.textContent = 'WORK MODE ACTIVE';
+    document.title = originalTitle;
 }
 
 function toggleMode() {
@@ -82,15 +99,13 @@ function toggleMode() {
     timeLeft = isWorkTime ? WORK_TIME : getBreakTime();
     updateDisplay(timeLeft);
     
-    // Update UI elements
-    toggleModeButton.textContent = isWorkTime ? 'Work Mode' : 'Break Mode';
-    modeText.textContent = isWorkTime ? 'Time to focus!' : 
-        (getBreakTime() === LONG_BREAK ? 'Time for a long break!' : 'Time for a short break!');
+    toggleModeButton.textContent = 'MODE';
+    modeText.textContent = isWorkTime ? 'WORK MODE ACTIVE' : 
+        (getBreakTime() === LONG_BREAK ? 'LONG BREAK ACTIVE' : 'SHORT BREAK ACTIVE');
     
-    // Reset timer state
     clearInterval(timerId);
     timerId = null;
-    startButton.textContent = 'Start';
+    startButton.textContent = 'START';
 }
 
 function playNotification() {
@@ -102,11 +117,19 @@ function playNotification() {
     }
 }
 
+document.addEventListener('visibilitychange', () => {
+    if (timeLeft) {
+        updateDisplay(timeLeft);
+    }
+});
+
 // Event listeners
 startButton.addEventListener('click', startTimer);
 resetButton.addEventListener('click', resetTimer);
 toggleModeButton.addEventListener('click', toggleMode);
 
-// Initialize timer
+// Initialize
+updateDate();
+setInterval(updateDate, 1000);
 timeLeft = WORK_TIME;
 updateDisplay(timeLeft); 

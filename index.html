@@ -3,26 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pomodoro Timer</title>
+    <title>ACTIVE TIME</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/digital-7-mono" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>Pomodoro Timer</h1>
-        <div class="session-counter">Session: <span id="session-count">1</span>/4</div>
-        <div class="timer">
-            <span id="minutes">25</span>:<span id="seconds">00</span>
+        <div class="header">
+            <h1>ACTIVE TIME:</h1>
+            <div class="session-counter">SESSION <span id="session-count">1</span>/4</div>
         </div>
-        <div class="controls">
-            <div class="primary-buttons">
-                <button id="start">Start</button>
-                <button id="reset" class="reset">Reset</button>
+        
+        <div class="timer-container">
+            <div class="timer">
+                <span id="minutes">25</span>:<span id="seconds">00</span>
             </div>
-            <button id="toggle-mode">Work Mode</button>
         </div>
+
+        <div class="controls">
+            <button id="start">START</button>
+            <button id="reset">RESET</button>
+            <button id="toggle-mode">MODE</button>
+        </div>
+
         <div class="mode">
-            <span id="mode-text">Time to focus!</span>
+            <span id="mode-text">WORK MODE ACTIVE</span>
+        </div>
+
+        <div class="date-display">
+            JANUARY 08, 2025
         </div>
     </div>
     <script src="script.js"></script>
